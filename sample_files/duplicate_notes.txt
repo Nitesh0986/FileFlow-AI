@@ -1,0 +1,4 @@
+PROJECT NOTES
+FileFlow-AI is a privacy-first local file management system.
+Main workflow:
+Detect -> Analyze -> Classify -> Organize -> Verify.

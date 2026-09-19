@@ -1,0 +1,4 @@
+PROJECT REPORT
+Title: FileFlow-AI
+Objective: Intelligent local file organization.
+Technologies: Python, FastAPI, React, SQLite, Watchdog.

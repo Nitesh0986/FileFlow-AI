@@ -1,0 +1,6 @@
+watchdog
+fastapi
+uvicorn
+python-dotenv
+pymupdf
+pydantic

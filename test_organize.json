@@ -1,0 +1,6 @@
+{
+  "source": "C:\\Users\\nites\\Desktop\\flow\\FileFlow-AI\\sample_files\\incoming",
+  "target": "C:\\Users\\nites\\Desktop\\flow\\FileFlow-AI\\sample_files\\organized",
+  "dry_run": true,
+  "recursive": true
+}

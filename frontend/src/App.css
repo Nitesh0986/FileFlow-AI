@@ -1,0 +1,18 @@
+.app {
+  display: flex;
+  min-height: 100vh;
+}
+
+.main-content {
+  flex: 1;
+  padding: 2rem;
+  overflow-y: auto;
+}
+
+.placeholder {
+  text-align: center;
+  padding: 4rem;
+  color: #999;
+  font-size: 1.25rem;
+  font-style: italic;
+}

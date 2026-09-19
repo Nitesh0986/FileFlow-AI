@@ -1,0 +1,6 @@
+RESUME
+Name: Demo Candidate
+Role: Software Developer
+Skills: Python, JavaScript, React, FastAPI, SQL
+Education: Bachelor of Technology in Computer Science
+Experience: Software development and machine learning projects.

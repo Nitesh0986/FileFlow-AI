@@ -1,0 +1,5 @@
+RESUME
+Name: Nitesh Barnwal
+Education: B.Tech Computer Science
+Skills: Python, C++, React, Machine Learning
+Experience: Software Development Intern

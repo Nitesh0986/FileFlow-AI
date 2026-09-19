@@ -1,0 +1,6 @@
+INVOICE
+Invoice Number: INV-2026-001
+Customer: Demo Customer
+Item: Software Development Service
+Amount: INR 25,000
+Status: Paid
