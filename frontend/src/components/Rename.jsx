@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import './Rename.css'
 
+const API_URL = 'https://fileflow-ai-qtmd.onrender.com'
+
 function Rename() {
   const [filePath, setFilePath] = useState('')
   const [newName, setNewName] = useState('')
@@ -8,8 +10,6 @@ function Rename() {
   const [renaming, setRenaming] = useState(false)
   const [result, setResult] = useState(null)
   const [error, setError] = useState(null)
-
-  const API_URL = 'http://localhost:8000'
 
   const handleRename = async () => {
     if (!filePath.trim() || !newName.trim()) {
@@ -39,6 +39,7 @@ function Rename() {
       )
 
       const data = await response.json()
+
       console.log('Rename API response:', data)
 
       if (!response.ok) {
@@ -57,12 +58,18 @@ function Rename() {
           setError(data.data.error || 'Rename operation failed')
         }
       } else {
-        setError(data.detail || data.message || 'Rename operation failed')
+        setError(
+          data.detail ||
+          data.message ||
+          'Rename operation failed'
+        )
       }
+
     } catch (err) {
       console.error('Rename error:', err)
+
       setError(
-        'Could not connect to FileFlow-AI backend. Make sure FastAPI is running on http://localhost:8000'
+        'Could not connect to FileFlow-AI backend. Please try again.'
       )
     } finally {
       setRenaming(false)
@@ -129,7 +136,10 @@ function Rename() {
               className="checkbox"
               disabled={renaming}
             />
-            <span>Dry Run (preview without renaming)</span>
+
+            <span>
+              Dry Run (preview without renaming)
+            </span>
           </label>
         </div>
 
@@ -163,33 +173,46 @@ function Rename() {
 
           {result.success ? (
             <div className="result-success">
+
               <h3>✓ Rename Successful</h3>
 
               <div className="result-details">
 
                 <div className="result-item">
-                  <span className="result-label">Old Name:</span>
+                  <span className="result-label">
+                    Old Name:
+                  </span>
+
                   <span className="result-value">
                     {result.old_name || 'N/A'}
                   </span>
                 </div>
 
                 <div className="result-item">
-                  <span className="result-label">New Name:</span>
+                  <span className="result-label">
+                    New Name:
+                  </span>
+
                   <span className="result-value">
                     {result.new_name || 'N/A'}
                   </span>
                 </div>
 
                 <div className="result-item">
-                  <span className="result-label">Old Path:</span>
+                  <span className="result-label">
+                    Old Path:
+                  </span>
+
                   <span className="result-value">
                     {result.old_path || 'N/A'}
                   </span>
                 </div>
 
                 <div className="result-item">
-                  <span className="result-label">New Path:</span>
+                  <span className="result-label">
+                    New Path:
+                  </span>
+
                   <span className="result-value">
                     {result.new_path || 'N/A'}
                   </span>
@@ -197,13 +220,17 @@ function Rename() {
 
               </div>
             </div>
+
           ) : (
+
             <div className="result-error">
               <h3>✗ Rename Failed</h3>
+
               <p className="error-message">
                 {result.error || 'Rename operation failed'}
               </p>
             </div>
+
           )}
 
           {dryRun && result.success && (
@@ -219,23 +246,50 @@ function Rename() {
 
       {error && (
         <div className="rename-error">
+
           <h3>✗ Error</h3>
-          <p className="error-message">{error}</p>
+
+          <p className="error-message">
+            {error}
+          </p>
+
         </div>
       )}
 
       <div className="rename-info">
+
         <h4>ℹ️ Safety Features</h4>
 
         <ul>
-          <li>Source file must exist and be a valid file</li>
-          <li>New filename cannot be empty</li>
-          <li>Invalid characters are automatically sanitized</li>
-          <li>Path traversal attempts are blocked</li>
-          <li>Existing files are never overwritten</li>
-          <li>File extension is preserved if not specified</li>
-          <li>Use Dry Run first to preview changes</li>
+          <li>
+            Source file must exist and be a valid file
+          </li>
+
+          <li>
+            New filename cannot be empty
+          </li>
+
+          <li>
+            Invalid characters are automatically sanitized
+          </li>
+
+          <li>
+            Path traversal attempts are blocked
+          </li>
+
+          <li>
+            Existing files are never overwritten
+          </li>
+
+          <li>
+            File extension is preserved if not specified
+          </li>
+
+          <li>
+            Use Dry Run first to preview changes
+          </li>
         </ul>
+
       </div>
 
     </div>

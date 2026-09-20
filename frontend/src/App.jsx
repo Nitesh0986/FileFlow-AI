@@ -19,7 +19,7 @@ function App() {
 
   const fetchStats = async () => {
     try {
-      const response = await fetch('http://localhost:8000/api/stats')
+      const response = await fetch('https://fileflow-ai-qtmd.onrender.com/api/stats')
       const data = await response.json()
 
       if (data.success) {
