@@ -4,6 +4,7 @@ import Files from './components/Files'
 import Organize from './components/Organize'
 import Duplicates from './components/Duplicates'
 import Rename from './components/Rename'
+import Settings from './components/settings'
 import Sidebar from './components/Sidebar'
 import './App.css'
 
@@ -18,8 +19,9 @@ function App() {
 
   const fetchStats = async () => {
     try {
-      const response = await fetch('/api/stats')
+      const response = await fetch('http://localhost:8000/api/stats')
       const data = await response.json()
+
       if (data.success) {
         setStats(data.data)
       }
@@ -33,25 +35,47 @@ function App() {
   const renderContent = () => {
     switch (activeTab) {
       case 'dashboard':
-        return <Dashboard stats={stats} loading={loading} onRefresh={fetchStats} />
+        return (
+          <Dashboard
+            stats={stats}
+            loading={loading}
+            onRefresh={fetchStats}
+          />
+        )
+
       case 'files':
         return <Files />
+
       case 'organize':
         return <Organize />
+
       case 'duplicates':
         return <Duplicates />
+
       case 'rename':
         return <Rename />
+
       case 'settings':
-        return <div className="placeholder">Settings coming soon...</div>
+        return <Settings />
+
       default:
-        return <Dashboard stats={stats} loading={loading} onRefresh={fetchStats} />
+        return (
+          <Dashboard
+            stats={stats}
+            loading={loading}
+            onRefresh={fetchStats}
+          />
+        )
     }
   }
 
   return (
     <div className="app">
-      <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} />
+      <Sidebar
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
+      />
+
       <main className="main-content">
         {renderContent()}
       </main>
