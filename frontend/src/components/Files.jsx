@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { API_BASE_URL } from '../config'
 import './Files.css'
 
 function Files() {
@@ -15,8 +16,8 @@ function Files() {
     try {
       setLoading(true)
       const url = selectedCategory === 'all' 
-        ? '/api/files?limit=50'
-        : `/api/files?category=${selectedCategory}&limit=50`
+        ? `${API_BASE_URL}/api/files?limit=50`
+        : `${API_BASE_URL}/api/files?category=${selectedCategory}&limit=50`
       
       const response = await fetch(url)
       const data = await response.json()

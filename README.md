@@ -62,23 +62,112 @@ Dashboard / Undo
 
 📊 Dashboard for organized files and recent actions
 
-🏗️ Planned Architecture
+## 🏗️ System Architecture
 
-Local File System
-       ↓
-File Watcher (Watchdog)
-       ↓
-File Analyzer
-       ↓
-AI Classification
-       ↓
-Safety / Validation
-       ↓
-Organization Engine
-       ↓
-SQLite Activity Log
-       ↓
-React Dashboard
+FileFlow AI is built on a multi-tiered, event-driven, local-first architecture designed for speed, user privacy, and predictable file operations.
+
+```mermaid
+graph TD
+    subgraph UI ["🖥️ Presentation Layer (React 18 + Vite)"]
+        DASH["📊 Dashboard<br/>(Metrics, Activity, Storage)"]
+        FILES["📁 Files Browser<br/>(Categorized Views & Preview)"]
+        ORG["⚡ Organize View<br/>(Dry-run & Live Movement)"]
+        REN["✏️ Smart Renamer<br/>(Batch Patterns & Sanitization)"]
+        DUP["🔍 Duplicate Finder<br/>(Hash Groups & Cleanup)"]
+        SET["⚙️ Settings<br/>(Monitored Paths & Rules)"]
+    end
+
+    subgraph API ["⚡ API & Orchestration Layer (FastAPI)"]
+        ROUTER["REST API Endpoints<br/>(/api/analyze, /classify, /organize,<br/>/rename, /duplicates, /stats, /files)"]
+        BG["Background Task Daemon<br/>(Watchdog Thread Runner)"]
+    end
+
+    subgraph CORE ["🧠 Core Processing Engine (Python)"]
+        WATCH["📡 File Watcher<br/>(watchdog.observers.Observer)"]
+        ANA["🔬 File Analyzer<br/>(MIME, Timestamps, Size, SHA-256)"]
+        CLASS["🏷️ File Classifier<br/>(Rule-based & Content Heuristics)"]
+        ORGENG["📦 Organization Engine<br/>(Path Routing, Collision Resolution, Dry-Run)"]
+        RENENG["✍️ Renaming Engine<br/>(Regex Patterns, Sanitization, Counters)"]
+        DUPENG["🔎 Duplicate Detector<br/>(Fast Size Filter + SHA-256 Hashing)"]
+    end
+
+    subgraph STORAGE ["💾 Storage & Audit Layer"]
+        DB[("🗄️ SQLite Database (fileflow.db)<br/>• files<br/>• actions<br/>• file_actions")]
+        FS["📂 Local File System<br/>(Monitored Sources & Target Categories)"]
+    end
+
+    UI <-->|HTTP / JSON (Axios)| ROUTER
+    ROUTER --> BG
+    BG --> WATCH
+    WATCH --> ANA
+    ROUTER --> ANA
+    ROUTER --> CLASS
+    ROUTER --> ORGENG
+    ROUTER --> RENENG
+    ROUTER --> DUPENG
+    ANA --> CLASS
+    CLASS --> ORGENG
+    ORGENG --> FS
+    ORGENG --> DB
+    RENENG --> FS
+    RENENG --> DB
+    DUPENG --> FS
+    DUPENG --> DB
+    ROUTER <--> DB
+```
+
+### Architectural Layers
+
+1. **Presentation Layer (`frontend/`)**:
+   - Modern single-page application built with **React 18** and bundled with **Vite**.
+   - Modular views for live file statistics, batch file organization with dry-run support, batch renaming, duplicate detection, and watcher settings.
+   - Communicates with the backend using RESTful JSON APIs via Axios.
+
+2. **API & Orchestration Layer (`backend/api.py`)**:
+   - High-performance asynchronous REST API built with **FastAPI** and **Uvicorn**.
+   - Handles background task execution for the asynchronous file watcher.
+   - Provides dry-run simulation mode for previewing organization actions before modifying the disk.
+
+3. **Core Processing Engine (`backend/`)**:
+   - **File Watcher (`watcher.py`)**: Real-time operating system file-event listener built on `watchdog`.
+   - **File Analyzer (`analyzer.py`)**: Gathers file metadata (size, MIME type, timestamps, cryptographic SHA-256 hash).
+   - **Classifier (`classifier.py`)**: Smart heuristic and rule-based categorization into 9 distinct domains (Documents, Code, Media, Archives, Data, etc.).
+   - **Organization Engine (`organizer.py`)**: Manages safe directory creation, conflict avoidance (auto-incrementing file suffixes), and safe filesystem movement.
+   - **Renamer (`renamer.py`)**: Configurable pattern matcher supporting prefix/suffix rules, date stamping, lowercase normalization, and character sanitization.
+   - **Duplicate Detector (`duplicate.py`)**: Efficient two-pass duplicate detection combining preliminary file-size grouping with precise SHA-256 content verification.
+
+4. **Storage & Audit Layer (`backend/database.py`)**:
+   - Embedded **SQLite** database (`fileflow.db`) ensuring all file discoveries, renames, and moves are immutably logged with rollback and audit capabilities.
+
+### 🔄 End-to-End Data Flow Pipeline
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant FS as Local File System
+    participant W as Watcher / REST API
+    participant A as File Analyzer
+    participant C as Classifier
+    participant O as Organizer / Renamer
+    participant DB as SQLite DB
+    participant UI as React Dashboard
+
+    Note over FS,W: Step 1: File Ingestion (Auto Watch or Manual Trigger)
+    FS->>W: New file event or manual folder selection
+    W->>A: Extract metadata & compute SHA-256 hash
+    A->>C: Provide file properties & content hints
+    C->>C: Classify into category (e.g. Documents, Finance, Media)
+    C->>O: Pass target destination & routing rules
+    O->>O: Validate path & handle filename collisions
+    alt Dry-Run Simulation
+        O-->>UI: Return preview of proposed changes without touching disk
+    else Live Execution
+        O->>FS: Safely move or rename file
+        O->>DB: Record action in SQLite audit log (old_path, new_path, timestamp)
+        DB-->>UI: Live dashboard refresh with updated metrics & history
+    end
+```
+
 
 🛠️ Technology Stack
 
@@ -136,23 +225,6 @@ when they are used.
 
 System-critical directories should not be monitored.
 
-📂 Planned Structure
-
-FileFlow-AI/
-├── backend/
-│   ├── main.py
-│   ├── watcher.py
-│   ├── organizer.py
-│   ├── classifier.py
-│   ├── renamer.py
-│   ├── duplicate.py
-│   └── database.py
-├── frontend/
-├── sample_files/
-├── .env.example
-├── .gitignore
-├── README.md
-└── requirements.txt
 
 🚀 MVP Roadmap
 
@@ -334,35 +406,89 @@ Narula Institute of Technology
 
 ### 📁 Project Structure
 
-```
+```text
 FileFlow-AI/
-├── backend/
-│   ├── main.py          # CLI interface
-│   ├── watcher.py       # File monitoring
-│   ├── organizer.py     # File organization
-│   ├── classifier.py    # File categorization
-│   ├── renamer.py       # Batch renaming
-│   ├── duplicate.py     # Duplicate detection
-│   ├── database.py      # SQLite database
-│   ├── analyzer.py      # File metadata analysis
-│   └── api.py           # FastAPI server
-├── frontend/
+├── backend/                        # Python backend application & core processing engines
+│   ├── _init_.py                   # Package initializer
+│   ├── main.py                     # Unified CLI tool for analysis, organization & folder watching
+│   ├── api.py                      # FastAPI REST API server, routers & background task manager
+│   ├── analyzer.py                 # File metadata extraction, MIME type detection & SHA-256 hashing
+│   ├── classifier.py               # Heuristic & rule-based file classification (9 distinct categories)
+│   ├── organizer.py                # Safe file routing, directory auto-creation & collision resolution
+│   ├── renamer.py                  # Batch file renaming with regex pattern matching & sanitization
+│   ├── duplicate.py                # Two-tier duplicate detection (file size filtering + hash verification)
+│   ├── database.py                 # SQLite database manager for tracking files & audit history
+│   ├── watcher.py                  # Watchdog-based real-time folder monitoring daemon
+│   ├── test_pipeline.py            # Automated test pipeline for analyzer & categorization
+│   └── test_rename.py              # Test suite verifying batch renaming logic
+├── frontend/                       # React 18 + Vite dashboard interface
 │   ├── src/
 │   │   ├── components/
-│   │   │   ├── Dashboard.jsx
-│   │   │   └── Sidebar.jsx
-│   │   ├── App.jsx
-│   │   ├── main.jsx
-│   │   └── index.css
-│   ├── index.html
-│   ├── package.json
-│   └── vite.config.js
-├── sample_files/
-├── requirements.txt
-└── README.md
+│   │   │   ├── Dashboard.jsx       # Overview metrics, storage status & recent activity feed
+│   │   │   ├── Dashboard.css       # Styling for dashboard cards & metrics
+│   │   │   ├── Files.jsx           # Categorized file explorer & metadata inspection
+│   │   │   ├── Files.css           # Styling for file list and detail views
+│   │   │   ├── Organize.jsx        # Interactive folder organization with dry-run toggle
+│   │   │   ├── Organize.css        # Styling for organization workflows & results
+│   │   │   ├── Rename.jsx          # Batch renamer tool with prefix, suffix & pattern preview
+│   │   │   ├── Rename.css          # Styling for rename preview & form
+│   │   │   ├── Duplicates.jsx      # Duplicate file group detector & disk cleanup tool
+│   │   │   ├── Duplicates.css      # Styling for duplicate groups & comparison
+│   │   │   ├── settings.jsx        # Configuration for monitored folders & preferences
+│   │   │   ├── settings.css        # Styling for settings page
+│   │   │   ├── Sidebar.jsx         # Navigation sidebar for tab switching
+│   │   │   └── Sidebar.css         # Styling for sidebar navigation
+│   │   ├── App.jsx                 # Root component with routing/tab state & layout
+│   │   ├── App.css                 # Application-level layout styling
+│   │   ├── main.jsx                # React DOM entry point
+│   │   └── index.css               # Global typography, CSS variables & base styles
+│   ├── index.html                  # HTML entry point for Vite
+│   ├── package.json                # Frontend dependencies & npm scripts
+│   ├── package-lock.json           # Locked npm dependency tree
+│   ├── vite.config.js              # Vite bundler configuration & dev server proxy
+│   └── .gitignore                  # Frontend ignore patterns
+├── sample_files/                   # Test fixtures & simulated directory sandbox
+│   ├── incoming/                   # Incoming directory for file watcher testing
+│   ├── organized/                  # Target output folder categorized by type
+│   ├── organized_test/             # Automated test target directory
+│   ├── duplicate_notes.txt         # Duplicate test fixture for notes
+│   ├── duplicate_resume.txt        # Duplicate test fixture for resume
+│   ├── test_certificate.txt       # Sample document for certificate classification
+│   ├── test_invoice.txt           # Sample document for finance/invoice classification
+│   ├── test_notes.txt             # Sample notes document
+│   ├── test_report.txt            # Sample report document
+│   ├── test_resume.txt            # Sample resume document
+│   └── ...                         # Other rename and watcher test fixtures
+├── test_api_organize.py            # API test script verifying dry-run organize endpoint
+├── test_api_organize_wet.py        # API test script verifying live organize execution
+├── test_api_rename.py              # API test script verifying batch renaming endpoint
+├── test_organize.json              # Sample JSON payload for organize API
+├── fileflow.db                     # SQLite database file storing file index & audit trail
+├── requirements.txt                # Python backend dependencies (FastAPI, Watchdog, etc.)
+└── README.md                       # Comprehensive project documentation
 ```
 
-### � Quick Start
+### 🧩 Module Breakdown & Responsibilities
+
+| Component / Module | Path | Primary Responsibility |
+| :--- | :--- | :--- |
+| **FastAPI Server** | `backend/api.py` | Exposes REST endpoints, validates inputs, and manages background tasks |
+| **CLI Interface** | `backend/main.py` | Command-line tool to analyze, organize, rename, and watch folders |
+| **File Watcher** | `backend/watcher.py` | Uses `watchdog` to monitor filesystem events and auto-trigger pipelines |
+| **File Analyzer** | `backend/analyzer.py` | Extracts file size, timestamps, MIME types, and SHA-256 cryptographic hashes |
+| **Classifier** | `backend/classifier.py` | Heuristic engine sorting files into 9 categories (Documents, Code, Media, etc.) |
+| **Organizer** | `backend/organizer.py` | Handles directory structure creation, safe file moving, and collision avoidance |
+| **Renamer** | `backend/renamer.py` | Batch renaming with pattern replacements, date stamps, and sanitization |
+| **Duplicate Detector**| `backend/duplicate.py` | Groups duplicates by file size and verifies identical SHA-256 signatures |
+| **Database Manager** | `backend/database.py` | Manages SQLite connection, table schemas, action audit logging, and queries |
+| **Dashboard UI** | `frontend/src/components/Dashboard.jsx` | Overview statistics, category distribution, and recent activity log |
+| **File Explorer UI** | `frontend/src/components/Files.jsx` | Browse files by category with detailed metadata inspection |
+| **Organize UI** | `frontend/src/components/Organize.jsx` | Source/destination folder selection with dry-run preview and batch organize |
+| **Rename UI** | `frontend/src/components/Rename.jsx` | Pattern configuration, live preview, and batch renaming |
+| **Duplicates UI** | `frontend/src/components/Duplicates.jsx` | Duplicate detection scan, grouped view, and disk space reclaim |
+| **Settings UI** | `frontend/src/components/settings.jsx` | Configure monitored folders, watch intervals, and auto-organize options |
+
+### 🚀 Quick Start
 
 **Backend (CLI):**
 ```bash

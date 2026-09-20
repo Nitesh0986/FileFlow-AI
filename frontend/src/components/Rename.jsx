@@ -1,7 +1,8 @@
 import { useState } from 'react'
+import { API_BASE_URL } from '../config'
 import './Rename.css'
 
-const API_URL = 'https://fileflow-ai-qtmd.onrender.com'
+const API_URL = API_BASE_URL
 
 function Rename() {
   const [filePath, setFilePath] = useState('')

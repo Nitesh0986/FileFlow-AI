@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { API_BASE_URL } from '../config'
 import './Dashboard.css'
 
 function Dashboard({ stats, loading, onRefresh }) {
@@ -10,7 +11,7 @@ function Dashboard({ stats, loading, onRefresh }) {
 
   const fetchRecentFiles = async () => {
     try {
-      const response = await fetch('/api/files?limit=10')
+      const response = await fetch(`${API_BASE_URL}/api/files?limit=10`)
       const data = await response.json()
       if (data.success) {
         setRecentFiles(data.data)

@@ -6,6 +6,7 @@ import Duplicates from './components/Duplicates'
 import Rename from './components/Rename'
 import Settings from './components/settings'
 import Sidebar from './components/Sidebar'
+import { API_BASE_URL } from './config'
 import './App.css'
 
 function App() {
@@ -19,7 +20,7 @@ function App() {
 
   const fetchStats = async () => {
     try {
-      const response = await fetch('https://fileflow-ai-qtmd.onrender.com/api/stats')
+      const response = await fetch(`${API_BASE_URL}/api/stats`)
       const data = await response.json()
 
       if (data.success) {

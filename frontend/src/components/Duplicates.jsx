@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { API_BASE_URL } from '../config'
 import './Duplicates.css'
 
 function Duplicates() {
@@ -17,7 +18,7 @@ function Duplicates() {
     setDuplicates(null)
 
     try {
-      const response = await fetch(`/api/duplicates?folder_path=${encodeURIComponent(folderPath)}&algorithm=${algorithm}`)
+      const response = await fetch(`${API_BASE_URL}/api/duplicates?folder_path=${encodeURIComponent(folderPath)}&algorithm=${algorithm}`)
       const data = await response.json()
       if (data.success) {
         setDuplicates(data.data)

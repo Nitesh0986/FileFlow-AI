@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { API_BASE_URL } from '../config'
 import './Organize.css'
 
 function Organize() {
@@ -19,7 +20,7 @@ function Organize() {
     setResults(null)
 
     try {
-      const response = await fetch('/api/organize', {
+      const response = await fetch(`${API_BASE_URL}/api/organize`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
